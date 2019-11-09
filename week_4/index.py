@@ -4,6 +4,8 @@ import pandas as pd
 import transform_data as t
 from flask_restplus import fields
 from flask import request
+from flask_restplus import inputs
+from flask_restplus import reqparse
 df = pd.read_csv('./data/Books.csv')
 
 df = t.transform(df)
@@ -21,6 +23,9 @@ book_model = api.model('Book', {
     'Place_of_Publication': fields.String
 })
 
+parser = reqparse.RequestParser()
+parser.add_argument('order', choices=list(column for column in book_model.keys()))
+parser.add_argument('ascending', type=inputs.boolean)
 
 @api.route('/books/<int:id>')
 class Books(Resource):
@@ -56,6 +61,11 @@ class Books(Resource):
             df.loc[id, key] = book[key]
 
         return {"message": f"Book {id} had been successfully updated"}, 200
+
+# @api.route('/books')
+# class BooksList(Resource):
+#     def get(self):
+#         args = parser.parse_args()
 
 
 
